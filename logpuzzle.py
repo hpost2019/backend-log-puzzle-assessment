@@ -50,8 +50,10 @@ def read_urls(filename):
                 url_templist[line[url_found.start():url_found.end()]]
     for key in url_templist.keys():
         url_list.append(domain + key)
-
-    return sorted(url_list)
+    if temp[0] == 'animal':
+        return sorted(url_list)
+    else:
+        return sorted(url_list, key=lambda x: x.split('-')[4])
 
 
 def download_images(img_urls, dest_dir):
