@@ -13,12 +13,24 @@ Here's what a puzzle URL looks like (spread out onto multiple lines):
 HTTP/1.0" 302 528 "-" "Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US;
 rv:1.8.1.6) Gecko/20070725 Firefox/2.0.0.6"
 """
+# Your name here, and any other people/sources who helped.
+# Give credit where credit is due.
+__author__ = "hpost2019"
 
 import os
 import re
 import sys
 import urllib.request
 import argparse
+from collections import defaultdict
+
+
+def html_tag(tag):
+    def wrap_text(file, msg):
+        file1 = open(file, "a")
+        file1.write('<{0} src="{1}" />'.format(tag, msg))
+        file1.close
+    return wrap_text
 
 
 def read_urls(filename):
@@ -26,8 +38,22 @@ def read_urls(filename):
     extracting the hostname from the filename itself, sorting
     alphabetically in increasing order, and screening out duplicates.
     """
-    # +++your code here+++
-    pass
+    url_templist = defaultdict(list)
+    url_list = []
+    url_pattern = r'(\S*\Spuzzle\S*)'
+    temp = filename.split("_")
+    domain = 'http://' + temp[1]
+    with open(filename) as f:
+        for line in f:
+            url_found = re.search(url_pattern, line)
+            if url_found:
+                url_templist[line[url_found.start():url_found.end()]]
+    for key in url_templist.keys():
+        url_list.append(domain + key)
+    if temp[0] == 'animal':
+        return sorted(url_list)
+    else:
+        return sorted(url_list, key=lambda x: x.split('-')[4])
 
 
 def download_images(img_urls, dest_dir):
@@ -38,7 +64,18 @@ def download_images(img_urls, dest_dir):
     to show each local image file.
     Creates the directory if necessary.
     """
-    # +++your code here+++
+    img_count = 0
+    try:
+        os.mkdir(dest_dir)
+    except OSError as err:
+        print(err)
+        exit(1)
+    img_tag = html_tag('img')
+    for url in img_urls:
+        img_filename = os.path.join(dest_dir, 'img' + str(img_count) + '.jpg')
+        urllib.request.urlretrieve(url, img_filename)
+        img_tag('index.html', img_filename)
+        img_count += 1
     pass
 
 
